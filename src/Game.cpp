@@ -1,6 +1,7 @@
 #include "Game.h"
 #include <pplinterface.h>
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/VideoMode.hpp>
@@ -42,10 +43,10 @@ void Game::init(const std::string& path) {
 void Game::run() {
   // add pause here
   // SOME SYSTEM SHOULD FUNCTION WHILE PAUSED
-
   while (m_running) {
+    m_entities.update();
     // sEnemySpawner();
-    // sMovement();
+    sMovement();
     // sCollision();
     sUserInput();
     sRender();
@@ -60,8 +61,8 @@ void Game::setPaused(bool paused) {
 
 void Game::spawnPlayer() {
   auto entity = m_entities.addEntity("player");
-  entity->cTransform = std::make_shared<CTransform>(Vec2(200.0f, 200.0f), Vec2(1.0f, 1.0f), 0.0f);
-  entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10, 10, 10), sf::Color(255, 0, 0), 4.0f);
+  entity->cTransform = std::make_shared<CTransform>(Vec2(400.0f, 400.0f), Vec2(3.0f, 3.0f), 0.0f);
+  entity->cShape = std::make_shared<CShape>(32.0f, 3, sf::Color(10, 10, 10), sf::Color(255, 0, 0), 4.0f);
   entity->cInput = std::make_shared<CInput>();
   m_player = entity;
 }
@@ -96,17 +97,19 @@ void Game::sUserInput() {
     if (event.type == sf::Event::KeyPressed) {
       switch (event.key.code) {
         case sf::Keyboard::W:
-          std::cout << "W KEY PRESSED\n";
           m_player->cInput->up = true;
           break;
         case sf::Keyboard::S:
-          std::cout << "S KEY PRESSED\n";
+          m_player->cInput->down = true;
+          break;
           break;
         case sf::Keyboard::D:
-          std::cout << "D KEY PRESSED\n";
+          m_player->cInput->right = true;
+          break;
           break;
         case sf::Keyboard::A:
-          std::cout << "A KEY PRESSED\n";
+          m_player->cInput->left = true;
+          break;
           break;
         default:
           break;
@@ -115,16 +118,16 @@ void Game::sUserInput() {
     if (event.type == sf::Event::KeyReleased) {
       switch (event.key.code) {
         case sf::Keyboard::W:
-          std::cout << "W KEY RELEASED\n";
+          m_player->cInput->up = false;
           break;
         case sf::Keyboard::S:
-          std::cout << "S KEY RELEASED\n";
+          m_player->cInput->down = false;
           break;
         case sf::Keyboard::D:
-          std::cout << "D KEY RELEASED\n";
+          m_player->cInput->right = false;
           break;
         case sf::Keyboard::A:
-          std::cout << "A KEY RELEASED\n";
+          m_player->cInput->left = false;
           break;
         default:
           break;
@@ -133,8 +136,35 @@ void Game::sUserInput() {
   }
 }
 
+void Game::sMovement() {
+  const int SPEED = 5;
+
+  m_player->cTransform->velocity = {0.0f, 0.0f};
+  if (m_player->cInput->up) {
+    m_player->cTransform->velocity.y = -SPEED;
+  }
+  if (m_player->cInput->down) {
+    m_player->cTransform->velocity.y = SPEED;
+  }
+  if (m_player->cInput->right) {
+    m_player->cTransform->velocity.x = SPEED;
+  }
+  if (m_player->cInput->left) {
+    m_player->cTransform->velocity.x = -SPEED;
+  }
+  m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
+  m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
+}
+
+void Game::sEnemySpawner() {
+  m_entities.getEntities();
+}
+
 void Game::sRender() {
   m_window.clear();
-  
+  for (auto& e : m_entities.getEntities()) {
+    e->cShape->circle.setPosition(e->cTransform->pos);
+    m_window.draw(e->cShape->circle);
+  }
   m_window.display();
 }

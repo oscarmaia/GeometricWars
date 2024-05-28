@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
+
 class Vec2 {
  public:
   float x;
@@ -18,6 +20,8 @@ class Vec2 {
   void operator-=(const Vec2& other);
   void operator*=(const Vec2& other);
   void operator/=(const Vec2& other);
+
+  operator sf::Vector2f() const; 
 
   float dist(const Vec2& other) const;
 };

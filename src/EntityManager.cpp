@@ -12,6 +12,10 @@ std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag) {
   return e;
 }
 
+EntityVector& EntityManager::getEntities() {
+  return m_entities;
+}
+
 void EntityManager::update() {
   for (auto e : m_toAdd) {
     m_entities.push_back(e);

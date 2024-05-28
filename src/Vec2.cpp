@@ -1,4 +1,5 @@
 #include "Vec2.h"
+#include <SFML/System/Vector2.hpp>
 
 Vec2::Vec2() {
   x = 0;
@@ -30,3 +31,7 @@ bool Vec2::operator==(const Vec2& other) const {
 }
 
 bool Vec2::operator!=(const Vec2& other) const {}
+
+Vec2::operator sf::Vector2f() const {
+  return sf::Vector2f(x, y);
+}

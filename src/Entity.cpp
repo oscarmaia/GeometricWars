@@ -1,12 +1,15 @@
-#include "Entity.h"
 #include <cstddef>
 #include <memory>
+#include "Entity.h"
 
 Entity::Entity(const std::string& tag, const size_t id)
     : m_tag(tag),
       m_id(id){
-          // auto e = std::shared_ptr<Entity>(new Entity(tag, id));
       };
+
+// Entity::Entity(const std::string& tag, const size_t id) {
+//   auto e = std::shared_ptr<Entity>(new Entity(tag, id));
+// };
 
 bool Entity::isActive() const {
   return m_alive;
