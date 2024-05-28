@@ -1,8 +1,4 @@
-# GeometricWars
-
-This is an assignment program for a game called GeometricWars.
-
-## Game Overview
+## GeometricWars - Game Overview
 
 The game involves various entities such as players and enemies, each with their own unique properties and behaviors. The game's configuration is defined in a configuration file, with each line specifying different aspects of the game such as window size, font format, player, bullet specification, and enemy specifications.
 
