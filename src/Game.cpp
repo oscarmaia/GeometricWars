@@ -50,7 +50,6 @@ void Game::run() {
     sCollision();
     sUserInput();
     sRender();
-    std::cout << m_entities.getEntities().size() << "\n";
     m_currentFrame++;
   }
   std::cout << "Game exited!";
