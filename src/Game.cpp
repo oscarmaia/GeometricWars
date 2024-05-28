@@ -47,7 +47,7 @@ void Game::run() {
     m_entities.update();
     // sEnemySpawner();
     sMovement();
-    // sCollision();
+    sCollision();
     sUserInput();
     sRender();
     m_currentFrame++;
@@ -61,8 +61,8 @@ void Game::setPaused(bool paused) {
 
 void Game::spawnPlayer() {
   auto entity = m_entities.addEntity("player");
-  entity->cTransform = std::make_shared<CTransform>(Vec2(400.0f, 400.0f), Vec2(3.0f, 3.0f), 0.0f);
-  entity->cShape = std::make_shared<CShape>(32.0f, 3, sf::Color(10, 10, 10), sf::Color(255, 0, 0), 4.0f);
+  entity->cTransform = std::make_shared<CTransform>(Vec2(400.0f, 400.0f), Vec2(5.0f, 5.0f), 0.0f);
+  entity->cShape = std::make_shared<CShape>(32.0f, 8, sf::Color(10, 10, 10), sf::Color(255, 0, 0), 4.0f);
   entity->cInput = std::make_shared<CInput>();
   m_player = entity;
 }
@@ -133,6 +133,22 @@ void Game::sUserInput() {
           break;
       }
     }
+  }
+}
+
+void Game::sCollision() {
+  // screen borders
+  if ((m_player->cTransform->pos.x - m_player->cShape->circle.getRadius()) < 0) {
+    m_player->cTransform->pos.x = 0 + m_player->cShape->circle.getRadius();
+  }
+  if ((m_player->cTransform->pos.y - m_player->cShape->circle.getRadius()) < 0) {
+    m_player->cTransform->pos.y = 0 + m_player->cShape->circle.getRadius();
+  }
+  if ((m_player->cTransform->pos.x + m_player->cShape->circle.getRadius()) > m_window.getSize().x) {
+    m_player->cTransform->pos.x = m_window.getSize().x - m_player->cShape->circle.getRadius();
+  }
+  if ((m_player->cTransform->pos.y + m_player->cShape->circle.getRadius()) > m_window.getSize().y) {
+    m_player->cTransform->pos.y = m_window.getSize().y - m_player->cShape->circle.getRadius();
   }
 }
 

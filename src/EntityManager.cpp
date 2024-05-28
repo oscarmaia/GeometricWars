@@ -1,4 +1,5 @@
 #include "EntityManager.h"
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include "Entity.h"
@@ -29,6 +30,7 @@ void EntityManager::update() {
     } else {
       it++;
     }
+    // std::remove_if(m_entities.begin(),m_entities.end(),e.isac)
   }
   m_toAdd.clear();
 };
