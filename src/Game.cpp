@@ -45,11 +45,12 @@ void Game::run() {
   // SOME SYSTEM SHOULD FUNCTION WHILE PAUSED
   while (m_running) {
     m_entities.update();
-    // sEnemySpawner();
+    sEnemySpawner();
     sMovement();
     sCollision();
     sUserInput();
     sRender();
+    std::cout << m_entities.getEntities().size() << "\n";
     m_currentFrame++;
   }
   std::cout << "Game exited!";
@@ -173,7 +174,9 @@ void Game::sMovement() {
 }
 
 void Game::sEnemySpawner() {
-  m_entities.getEntities();
+  if (m_currentFrame - m_lastEnemySpawnTime >= 60) {
+    spawnEnemy();
+  }
 }
 
 void Game::sRender() {
