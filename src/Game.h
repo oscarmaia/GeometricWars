@@ -4,6 +4,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <memory>
 #include "Entity.h"
+#include <string>
 #include "EntityManager.h"
 
 struct PlayerConfig {

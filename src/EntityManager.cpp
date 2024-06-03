@@ -17,6 +17,10 @@ EntityVector& EntityManager::getEntities() {
   return m_entities;
 }
 
+EntityVector& EntityManager::getEntities(const std::string& tag) {
+  return m_entityMap[tag];
+}
+
 void EntityManager::update() {
   for (auto e : m_toAdd) {
     m_entities.push_back(e);

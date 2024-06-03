@@ -4,6 +4,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Window/Mouse.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <chrono>
 #include <cstdlib>
@@ -83,6 +84,13 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> e) {
   //
 }
 
+void Game::spawnBullet(std::shared_ptr<Entity> e, const Vec2& mousePos) {
+  auto entity = m_entities.addEntity("bullet");
+  auto playerPos = &m_player->cTransform->pos;
+  entity->cTransform = std::make_shared<CTransform>(*playerPos, mousePos.normalized(*playerPos), 0.0f);
+  entity->cShape = std::make_shared<CShape>(2.0f, 12, sf::Color(0, 255, 0), sf::Color(255, 255, 255), 1.0f);
+}
+
 // SYSTEMS
 void Game::sUserInput() {
   // TODO
@@ -133,6 +141,10 @@ void Game::sUserInput() {
           break;
       }
     }
+    if (event.type == sf::Event::MouseButtonPressed) {
+      Vec2 mousePos(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y);
+      spawnBullet(m_player, mousePos);
+    }
   }
 }
 
@@ -170,10 +182,15 @@ void Game::sMovement() {
   }
   m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
   m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
+
+  for (auto b : m_entities.getEntities("bullet")) {
+    b->cTransform->pos.x += b->cTransform->velocity.x * 5;
+    b->cTransform->pos.y += b->cTransform->velocity.y * 5;
+  }
 }
 
 void Game::sEnemySpawner() {
-  if (m_currentFrame - m_lastEnemySpawnTime >= 60) {
+  if (m_currentFrame - m_lastEnemySpawnTime >= 180) {
     spawnEnemy();
   }
 }
