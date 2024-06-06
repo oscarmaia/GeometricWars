@@ -62,5 +62,6 @@ class Game {
 
   // Misc
   void checkBoundaries(std::shared_ptr<Entity>& e);
-  void checkBulletCollision(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target);
+  void checkBulletCollisionWithEnemy(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target);
+  void checkEnemyCollisionWithPlayer(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target);
 };
