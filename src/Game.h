@@ -3,8 +3,8 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <memory>
-#include "Entity.h"
 #include <string>
+#include "Entity.h"
 #include "EntityManager.h"
 
 struct PlayerConfig {
@@ -56,7 +56,11 @@ class Game {
   // Spawns
   void spawnPlayer();
   void spawnEnemy();
-  void spawnSmallEnemies(std::shared_ptr<Entity> entity);
-  void spawnBullet(std::shared_ptr<Entity> entity, const Vec2& mousePos);
-  void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
+  void spawnSmallEnemies(std::shared_ptr<Entity>& entity);
+  void spawnBullet(std::shared_ptr<Entity>& entity, const Vec2& mousePos);
+  void spawnSpecialWeapon(std::shared_ptr<Entity>& entity);
+
+  // Misc
+  void checkBoundaries(std::shared_ptr<Entity>& e);
+  void checkBulletCollision(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target);
 };

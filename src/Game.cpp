@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <vector>
 #include "Components.h"
 #include "Entity.h"
 #include "Vec2.h"
@@ -79,15 +80,15 @@ void Game::spawnEnemy() {
   m_lastEnemySpawnTime = m_currentFrame;
 }
 
-void Game::spawnSmallEnemies(std::shared_ptr<Entity> e) {
+void Game::spawnSmallEnemies(std::shared_ptr<Entity>& e) {
   // spawn small enemies at the location of the enemy death
   //
 }
 
-void Game::spawnBullet(std::shared_ptr<Entity> e, const Vec2& mousePos) {
+void Game::spawnBullet(std::shared_ptr<Entity>& e, const Vec2& mousePos) {
   auto entity = m_entities.addEntity("bullet");
   auto playerPos = &m_player->cTransform->pos;
-  entity->cTransform = std::make_shared<CTransform>(*playerPos, mousePos.normalized(*playerPos), 0.0f);
+  entity->cTransform = std::make_shared<CTransform>(*playerPos, playerPos->normalized(mousePos), 0.0f);
   entity->cShape = std::make_shared<CShape>(2.0f, 12, sf::Color(0, 255, 0), sf::Color(255, 255, 255), 1.0f);
 }
 
@@ -148,25 +149,59 @@ void Game::sUserInput() {
   }
 }
 
-void Game::sCollision() {
+void Game::checkBoundaries(std::shared_ptr<Entity>& e) {
   // screen borders
-  if ((m_player->cTransform->pos.x - m_player->cShape->circle.getRadius()) < 0) {
-    m_player->cTransform->pos.x = 0 + m_player->cShape->circle.getRadius();
+
+  if ((e->cTransform->pos.x - e->cShape->circle.getRadius()) < 0) {
+    e->cTransform->pos.x = 0 + e->cShape->circle.getRadius();
   }
-  if ((m_player->cTransform->pos.y - m_player->cShape->circle.getRadius()) < 0) {
-    m_player->cTransform->pos.y = 0 + m_player->cShape->circle.getRadius();
+  if ((e->cTransform->pos.y - e->cShape->circle.getRadius()) < 0) {
+    e->cTransform->pos.y = 0 + e->cShape->circle.getRadius();
   }
-  if ((m_player->cTransform->pos.x + m_player->cShape->circle.getRadius()) > m_window.getSize().x) {
-    m_player->cTransform->pos.x = m_window.getSize().x - m_player->cShape->circle.getRadius();
+  if ((e->cTransform->pos.x + e->cShape->circle.getRadius()) > m_window.getSize().x) {
+    e->cTransform->pos.x = m_window.getSize().x - e->cShape->circle.getRadius();
   }
-  if ((m_player->cTransform->pos.y + m_player->cShape->circle.getRadius()) > m_window.getSize().y) {
-    m_player->cTransform->pos.y = m_window.getSize().y - m_player->cShape->circle.getRadius();
+  if ((e->cTransform->pos.y + e->cShape->circle.getRadius()) > m_window.getSize().y) {
+    e->cTransform->pos.y = m_window.getSize().y - e->cShape->circle.getRadius();
+  }
+};
+
+void Game::checkBulletCollision(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target) {
+  // screen borders
+
+  if ((e->cTransform->pos.x - e->cShape->circle.getRadius()) < 0) {
+    e->destroy();
+  }
+  if ((e->cTransform->pos.y - e->cShape->circle.getRadius()) < 0) {
+    e->destroy();
+  }
+  if ((e->cTransform->pos.x + e->cShape->circle.getRadius()) > m_window.getSize().x) {
+    e->destroy();
+  }
+  if ((e->cTransform->pos.y + e->cShape->circle.getRadius()) > m_window.getSize().y) {
+    e->destroy();
+  }
+
+  auto dist = e->cTransform->pos.size(target->cTransform->pos);
+  auto rSum = e->cShape->circle.getRadius() + target->cShape->circle.getRadius();
+  if (dist < rSum) {
+    target->destroy();
+    e->destroy();
+  }
+}
+
+void Game::sCollision() {
+  checkBoundaries(m_player);
+  for (auto& b : m_entities.getEntities("bullet")) {
+    for (auto& enemy : m_entities.getEntities("enemy")) {
+      checkBulletCollision(b, enemy);
+    }
   }
 }
 
 void Game::sMovement() {
   const int SPEED = 5;
-
+  const int BULLET_SPEED = 10;
   m_player->cTransform->velocity = {0.0f, 0.0f};
   if (m_player->cInput->up) {
     m_player->cTransform->velocity.y = -SPEED;
@@ -184,8 +219,8 @@ void Game::sMovement() {
   m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
 
   for (auto b : m_entities.getEntities("bullet")) {
-    b->cTransform->pos.x += b->cTransform->velocity.x * 5;
-    b->cTransform->pos.y += b->cTransform->velocity.y * 5;
+    b->cTransform->pos.x += b->cTransform->velocity.x * BULLET_SPEED;
+    b->cTransform->pos.y += b->cTransform->velocity.y * BULLET_SPEED;
   }
 }
 
@@ -201,5 +236,8 @@ void Game::sRender() {
     e->cShape->circle.setPosition(e->cTransform->pos);
     m_window.draw(e->cShape->circle);
   }
+  std::cout << "ENTITY: " << m_entities.getEntities().size() << " | ";
+  std::cout << "ENEMY: " << m_entities.getEntities("enemy").size() << " | ";
+  std::cout << "BULLET : " << m_entities.getEntities("bullet").size() << "\n";
   m_window.display();
 }
