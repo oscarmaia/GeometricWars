@@ -22,19 +22,21 @@ EntityVector& EntityManager::getEntities(const std::string& tag) {
 }
 
 void EntityManager::update() {
-  for (auto e : m_toAdd) {
+  for (auto& e : m_toAdd) {
     m_entities.push_back(e);
     m_entityMap[e->tag()].push_back(e);
   }
 
-  for (auto it = m_entities.begin(); it != m_entities.end();) {
-    if (!(*it)->isActive()) {
-      m_entityMap.erase((*it)->tag());
-      it = m_entities.erase((it));
-    } else {
-      it++;
-    }
-    // std::remove_if(m_entities.begin(),m_entities.end(),e.isac)
-  }
+  // auto newEnd = std::remove_if(
+  //     m_entities.begin(), m_entities.end(), [](const std::shared_ptr<Entity>& e) { return !e->isActive(); });
+  // m_entities.erase(newEnd, m_entities.end());
+
+  std::erase_if(m_entities, [&](const std::shared_ptr<Entity>& e) {
+    if (!e->isActive()) {
+      std::erase(m_entityMap[e->tag()], e);
+      return true;
+    };
+    return false;
+  });
   m_toAdd.clear();
 };
