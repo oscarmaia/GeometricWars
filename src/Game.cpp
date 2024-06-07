@@ -70,8 +70,6 @@ void Game::init(const std::string& path) {
 }
 
 void Game::run() {
-  // add pause here
-  // SOME SYSTEM SHOULD FUNCTION WHILE PAUSED
   while (m_running) {
     m_entities.update();
     sEnemySpawner();
@@ -91,8 +89,8 @@ void Game::setPaused(bool paused) {
 // ENTITIES CREATORS
 void Game::spawnPlayer() {
   auto entity = m_entities.addEntity("player");
-  entity->cTransform =
-      std::make_shared<CTransform>(Vec2(m_window.getSize().x / 2, m_window.getSize().y / 2), Vec2(5.0f, 5.0f), 0.0f);
+  entity->cTransform = std::make_shared<CTransform>(
+      Vec2(m_window.getSize().x / 2, m_window.getSize().y / 2), Vec2(5, 5).normalize(), 0.0f);
   entity->cShape = std::make_shared<CShape>(m_playerConfig.SR,
                                             m_playerConfig.V,
                                             sf::Color(m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB),
@@ -140,8 +138,8 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity>& e) {
 
 void Game::spawnBullet(std::shared_ptr<Entity>& e, const Vec2& mousePos) {
   auto entity = m_entities.addEntity("bullet");
-  auto playerPos = &m_player->cTransform->pos;
-  entity->cTransform = std::make_shared<CTransform>(*playerPos, playerPos->normalized(mousePos), 0.0f);
+  auto dist = mousePos - m_player->cTransform->pos;
+  entity->cTransform = std::make_shared<CTransform>(m_player->cTransform->pos, dist.normalize(), 0.0f);
   entity->cShape = std::make_shared<CShape>(m_bulletConfig.SR,
                                             m_bulletConfig.V,
                                             sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB),
@@ -160,20 +158,30 @@ void Game::sUserInput() {
     }
     if (event.type == sf::Event::KeyPressed) {
       switch (event.key.code) {
-        case sf::Keyboard::W:
+        case (sf::Keyboard::W):
           m_player->cInput->up = true;
           break;
         case sf::Keyboard::S:
           m_player->cInput->down = true;
           break;
-          break;
         case sf::Keyboard::D:
           m_player->cInput->right = true;
-          break;
           break;
         case sf::Keyboard::A:
           m_player->cInput->left = true;
           break;
+
+        case sf::Keyboard::Up:
+          m_player->cInput->up = true;
+          break;
+        case sf::Keyboard::Down:
+          m_player->cInput->down = true;
+          break;
+        case sf::Keyboard::Right:
+          m_player->cInput->right = true;
+          break;
+        case sf::Keyboard::Left:
+          m_player->cInput->left = true;
           break;
         default:
           break;
@@ -191,6 +199,19 @@ void Game::sUserInput() {
           m_player->cInput->right = false;
           break;
         case sf::Keyboard::A:
+          m_player->cInput->left = false;
+          break;
+
+        case sf::Keyboard::Up:
+          m_player->cInput->up = false;
+          break;
+        case sf::Keyboard::Down:
+          m_player->cInput->down = false;
+          break;
+        case sf::Keyboard::Right:
+          m_player->cInput->right = false;
+          break;
+        case sf::Keyboard::Left:
           m_player->cInput->left = false;
           break;
         default:
@@ -238,7 +259,7 @@ void Game::enforceBoundaries(std::shared_ptr<Entity>& e) {
 
 void Game::bulletCollisionWithEnemy(std::shared_ptr<Entity>& bullet, std::shared_ptr<Entity>& target) {
   // screen border
-  auto dist = bullet->cTransform->pos.size(target->cTransform->pos);
+  float dist = (target->cTransform->pos - bullet->cTransform->pos).magnitude();
   auto rSum = bullet->cShape->circle.getRadius() + target->cShape->circle.getRadius();
   if (dist < rSum) {
     if (target->tag() == "enemy") {
@@ -276,7 +297,7 @@ void Game::destroyEntityOutOfScreen(std::shared_ptr<Entity>& e) {
 
 void Game::checkPlayerCollisionWithAllTargetsByTag(std::string targetTag) {
   for (auto& target : m_entities.getEntities(targetTag)) {
-    auto dist = m_player->cTransform->pos.size(target->cTransform->pos);
+    auto dist = (target->cTransform->pos - m_player->cTransform->pos).magnitude();
     auto rSum = m_player->cShape->circle.getRadius() + target->cShape->circle.getRadius();
     if (dist < rSum) {
       target->destroy();

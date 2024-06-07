@@ -40,14 +40,11 @@ Vec2::operator sf::Vector2f() const {
   return sf::Vector2f(x, y);
 }
 
-float Vec2::size(const Vec2& other) const {
-  Vec2 dif = other - Vec2(x, y);
-  return std::sqrt(dif.x * dif.x + dif.y * dif.y);
+float Vec2::magnitude() const {
+  return std::sqrt(x * x + y * y);
 }
 
-Vec2 Vec2::normalized(const Vec2& other) const {
-  Vec2 dif = other - Vec2(x, y);
-  float size = Vec2(x, y).size(other);
-  // TODO VERIFICAR SE ESTA CORRETO!
-  return Vec2(dif.x / size, dif.y / size);
+Vec2 Vec2::normalize() const {
+  float magnitude = Vec2(x, y).magnitude();
+  return Vec2(x, y) / magnitude;
 }
