@@ -47,13 +47,13 @@ The configuration file will have one line each specifying the window size, font 
 ```
 Window 1280 720 60 0
 Font fonts/tech.ttf 24 255 255 255
-Player 32 32 5 5 5 5 255 00 4 8
+Player 32 32 5 5 5 5 255 0 0 4 8
 Enemy 32 32 3 3 255 255 255 2 3 8 90 60
 Bullet 10 10 20 255 255 255 255 255 255 2 20 90
 ```
 
-Window W H FL FS
-- W(int width) H(int height) FL(int frame) FS(full screen mode or not 0/1)
+Window W H FR FS
+- W(int width) H(int height) FR(int frame rate) FS(full screen mode or not 0/1)
 
 Font F S R G B
 - F(string filename) S(int size) RGB(int colors)
