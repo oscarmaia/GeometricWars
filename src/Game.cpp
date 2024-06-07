@@ -260,16 +260,16 @@ void Game::checkBulletCollisionWithAllTargetsByTag(std::shared_ptr<Entity>& bull
 }
 
 void Game::destroyEntityOutOfScreen(std::shared_ptr<Entity>& e) {
-  if ((e->cTransform->pos.x - e->cShape->circle.getRadius()) < 0) {
+  if ((e->cTransform->pos.x + e->cShape->circle.getRadius()) < 0) {
     e->destroy();
   }
-  if ((e->cTransform->pos.y - e->cShape->circle.getRadius()) < 0) {
+  if ((e->cTransform->pos.y + e->cShape->circle.getRadius()) < 0) {
     e->destroy();
   }
-  if ((e->cTransform->pos.x + e->cShape->circle.getRadius()) > m_window.getSize().x) {
+  if ((e->cTransform->pos.x - e->cShape->circle.getRadius()) > m_window.getSize().x) {
     e->destroy();
   }
-  if ((e->cTransform->pos.y + e->cShape->circle.getRadius()) > m_window.getSize().y) {
+  if ((e->cTransform->pos.y - e->cShape->circle.getRadius()) > m_window.getSize().y) {
     e->destroy();
   }
 }
