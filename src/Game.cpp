@@ -55,7 +55,6 @@ void Game::init(const std::string& path) {
       m_bulletConfig.FG >> m_bulletConfig.FB >> m_bulletConfig.OR >> m_bulletConfig.OG >> m_bulletConfig.OB >>
       m_bulletConfig.OT >> m_bulletConfig.V >> m_bulletConfig.L;
 
-  // // TODO read in config file here
   if (m_windowConfig.FS == 1) {
     m_window.create(sf::VideoMode(m_windowConfig.W, m_windowConfig.H), "Geometric War", sf::Style::Fullscreen);
   } else {
@@ -309,6 +308,8 @@ void Game::checkPlayerCollisionWithAllTargetsByTag(std::string targetTag) {
 
 // MOVEMENT
 void Game::sMovement() {
+  // TODO
+  // NORMALIZE PLAYER MOVEMENT
   const int SPEED = 5;
   const int BULLET_SPEED = 10;
   m_player->cTransform->velocity = {0.0f, 0.0f};
