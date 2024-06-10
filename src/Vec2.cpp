@@ -2,6 +2,7 @@
 #include <math.h>
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
+#include <iostream>
 
 Vec2::Vec2() {
   x = 0;
@@ -15,6 +16,12 @@ Vec2::Vec2(float xin, float yin)
 Vec2 Vec2::operator+(const Vec2& other) const {
   return Vec2(x + other.x, y + other.y);
 };
+
+Vec2 Vec2::operator+=(const Vec2& other) {
+  //TODO
+  //VALIDATE IT
+  return Vec2(x + other.x, y + other.y);
+}
 
 Vec2 Vec2::operator-(const Vec2& other) const {
   return Vec2(x - other.x, y - other.y);
@@ -46,5 +53,8 @@ float Vec2::magnitude() const {
 
 Vec2 Vec2::normalize() const {
   float magnitude = Vec2(x, y).magnitude();
+  if (!magnitude) {
+    return Vec2(0, 0);
+  }
   return Vec2(x, y) / magnitude;
 }

@@ -17,7 +17,7 @@ class Vec2 {
   Vec2 operator/(const float val) const;
   float magnitude() const;
 
-  void operator+=(const Vec2& other);
+  Vec2 operator+=(const Vec2& other);
   void operator-=(const Vec2& other);
   void operator*=(const Vec2& other);
   void operator/=(const Vec2& other);

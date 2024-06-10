@@ -88,8 +88,8 @@ void Game::setPaused(bool paused) {
 // ENTITIES CREATORS
 void Game::spawnPlayer() {
   auto entity = m_entities.addEntity("player");
-  entity->cTransform = std::make_shared<CTransform>(
-      Vec2(m_window.getSize().x / 2, m_window.getSize().y / 2), Vec2(5, 5).normalize(), 0.0f);
+  entity->cTransform =
+      std::make_shared<CTransform>(Vec2(m_window.getSize().x / 2, m_window.getSize().y / 2), Vec2(5, 0), 0.0f);
   entity->cShape = std::make_shared<CShape>(m_playerConfig.SR,
                                             m_playerConfig.V,
                                             sf::Color(m_playerConfig.FR, m_playerConfig.FG, m_playerConfig.FB),
@@ -295,7 +295,7 @@ void Game::destroyEntityOutOfScreen(std::shared_ptr<Entity>& e) {
 }
 
 void Game::checkPlayerCollisionWithAllTargetsByTag(std::string targetTag) {
-  for (auto& target : m_entities.getEntities(targetTag)) {
+  for (const auto& target : m_entities.getEntities(targetTag)) {
     auto dist = (target->cTransform->pos - m_player->cTransform->pos).magnitude();
     auto rSum = m_player->cShape->circle.getRadius() + target->cShape->circle.getRadius();
     if (dist < rSum) {
@@ -308,25 +308,25 @@ void Game::checkPlayerCollisionWithAllTargetsByTag(std::string targetTag) {
 
 // MOVEMENT
 void Game::sMovement() {
-  // TODO
-  // NORMALIZE PLAYER MOVEMENT
-  const int SPEED = 5;
+  float playerSpeed = m_player->cTransform->velocity.magnitude();
+  std::cout << playerSpeed << "\n";
   const int BULLET_SPEED = 10;
-  m_player->cTransform->velocity = {0.0f, 0.0f};
+  Vec2 direction(0, 0);
   if (m_player->cInput->up) {
-    m_player->cTransform->velocity.y = -SPEED;
+    direction.y = -1;
   }
   if (m_player->cInput->down) {
-    m_player->cTransform->velocity.y = SPEED;
+    direction.y = 1;
   }
   if (m_player->cInput->right) {
-    m_player->cTransform->velocity.x = SPEED;
+    direction.x = 1;
   }
   if (m_player->cInput->left) {
-    m_player->cTransform->velocity.x = -SPEED;
+    direction.x = -1;
   }
-  m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
-  m_player->cTransform->pos.y += m_player->cTransform->velocity.y;
+  auto directionNormalized = direction.normalize();
+  m_player->cTransform->pos.x += directionNormalized.x * playerSpeed;
+  m_player->cTransform->pos.y += directionNormalized.y * playerSpeed;
 
   for (auto& b : m_entities.getEntities("bullet")) {
     b->cTransform->pos.x += b->cTransform->velocity.x * BULLET_SPEED;
