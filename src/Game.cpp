@@ -65,6 +65,14 @@ void Game::init(const std::string& path) {
   m_text.setFont(m_font);
   m_text.setCharacterSize(m_fontConfig.S);
   m_text.setString("0");
+  m_textEnemySpawnTime.setFont(m_font);
+  m_textEnemySpawnTime.setCharacterSize(m_fontConfig.S);
+  m_textEnemySpawnTime.setString("0");
+  m_textEnemySpawnTime.setPosition(200, 0);
+  m_textBulletSpawnTime.setFont(m_font);
+  m_textBulletSpawnTime.setCharacterSize(m_fontConfig.S);
+  m_textBulletSpawnTime.setString("0");
+  m_textBulletSpawnTime.setPosition(400, 0);
   spawnPlayer();
 }
 
@@ -72,6 +80,7 @@ void Game::run() {
   while (m_running) {
     m_entities.update();
     sEnemySpawner();
+    sBulletSpawner();
     sMovement();
     sCollision();
     sUserInput();
@@ -217,10 +226,6 @@ void Game::sUserInput() {
           break;
       }
     }
-    if (event.type == sf::Event::MouseButtonPressed) {
-      Vec2 mousePos(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y);
-      spawnBullet(m_player, mousePos);
-    }
   }
 }
 
@@ -263,10 +268,10 @@ void Game::bulletCollisionWithEnemy(std::shared_ptr<Entity>& bullet, std::shared
   if (dist < rSum) {
     if (target->tag() == "enemy") {
       spawnSmallEnemies(target);
-      m_score += 10;
+      m_score += 3 * target->cShape->circle.getPointCount();
     }
     if (target->tag() == "smallEnemy") {
-      m_score += 5;
+      m_score += 0.5 * target->cShape->circle.getPointCount();
     }
     target->destroy();
     bullet->destroy();
@@ -309,7 +314,6 @@ void Game::checkPlayerCollisionWithAllTargetsByTag(std::string targetTag) {
 // MOVEMENT
 void Game::sMovement() {
   float playerSpeed = m_player->cTransform->velocity.magnitude();
-  std::cout << playerSpeed << "\n";
   const int BULLET_SPEED = 10;
   Vec2 direction(0, 0);
   if (m_player->cInput->up) {
@@ -344,25 +348,61 @@ void Game::sMovement() {
 
 // ENEMY SPAWNER
 void Game::sEnemySpawner() {
-  if (m_currentFrame - m_lastEnemySpawnTime >= 120) {
+  int spawnTime = calculateEnemySpawnTime();
+  m_textEnemySpawnTime.setString(std::format("EF: {}", spawnTime));
+  if (m_currentFrame - m_lastEnemySpawnTime >= spawnTime) {
     spawnEnemy();
   }
+}
+
+int Game::calculateEnemySpawnTime() {
+  int initialSpawnTime = 120;  // 120 frames (2seconds)
+  int pointsPerDecrease = 100;
+  int decreaseAmount = 5;
+  int decreases = m_score / pointsPerDecrease;
+  int newSpawnTime = initialSpawnTime - (decreaseAmount * decreases);
+
+  if (newSpawnTime < 1) {
+    newSpawnTime = 1;
+  }
+  return newSpawnTime;
+}
+
+// BULLET SPAWNER
+void Game::sBulletSpawner() {
+  int spawnTime = calculateBulletSpawnTime();
+  m_textBulletSpawnTime.setString(std::format("BF: {}", spawnTime));
+  if (m_currentFrame - m_lastBulletSpawnTime >= spawnTime) {
+    Vec2 mousePos(sf::Mouse::getPosition(m_window).x, sf::Mouse::getPosition(m_window).y);
+    spawnBullet(m_player, mousePos);
+    m_lastBulletSpawnTime = m_currentFrame;
+  }
+}
+
+int Game::calculateBulletSpawnTime() {
+  int initialSpawnTime = 60;  // 120 frames (2seconds)
+  int pointsPerDecrease = 200;
+  int decreaseAmount = 5;
+  int decreases = m_score / pointsPerDecrease;
+  int newSpawnTime = initialSpawnTime - (decreaseAmount * decreases);
+
+  if (newSpawnTime < 1) {
+    newSpawnTime = 1;
+  }
+  return newSpawnTime;
 }
 
 // RENDER
 void Game::sRender() {
   m_window.clear();
-  std::string score_str = std::format("{}", m_score);
+  m_text.setString(std::format("Score: {}", m_score));
   for (auto& e : m_entities.getEntities()) {
     e->cShape->circle.setPosition(e->cTransform->pos);
     e->cShape->circle.rotate(2);
     m_window.draw(e->cShape->circle);
   }
-  // std::cout << "ENTITY: " << m_entities.getEntities().size() << " | ";
-  // std::cout << "ENEMY: " << m_entities.getEntities("enemy").size() << " | ";
-  // std::cout << "S_ENEMY: " << m_entities.getEntities("smallEnemy").size() << " | ";
-  // std::cout << "BULLET : " << m_entities.getEntities("bullet").size() << "\n";
-  m_text.setString(score_str);
+  m_window.draw(m_textBulletSpawnTime);
+  m_window.draw(m_textEnemySpawnTime);
   m_window.draw(m_text);
   m_window.display();
 }

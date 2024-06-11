@@ -42,6 +42,8 @@ class Game {
   EntityManager m_entities;
   sf::Font m_font;
   sf::Text m_text;
+  sf::Text m_textEnemySpawnTime;
+  sf::Text m_textBulletSpawnTime;
   WindowConfig m_windowConfig;
   FontConfig m_fontConfig;
   PlayerConfig m_playerConfig;
@@ -49,6 +51,8 @@ class Game {
   BulletConfig m_bulletConfig;
   int m_score = 0;
   int m_currentFrame = 0;
+  int m_bulletPerSecond = 1;
+  int m_lastBulletSpawnTime = 0;
   int m_lastEnemySpawnTime = 0;
   bool m_paused = false;
   bool m_running = true;
@@ -62,6 +66,7 @@ class Game {
   void sUserInput();
   void sLifesapn();
   void sEnemySpawner();
+  void sBulletSpawner();
   void sCollision();
   void sRender();
   // Spawns
@@ -77,4 +82,6 @@ class Game {
   void bulletCollisionWithEnemy(std::shared_ptr<Entity>& e, std::shared_ptr<Entity>& target);
   void destroyEntityOutOfScreen(std::shared_ptr<Entity>& e);
   void checkPlayerCollisionWithAllTargetsByTag(std::string target);
+  int calculateEnemySpawnTime();
+  int calculateBulletSpawnTime();
 };
